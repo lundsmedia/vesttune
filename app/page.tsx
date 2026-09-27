@@ -25,10 +25,13 @@ type CompareResult = {
   changedRanges: { start: number; end: number; bytes: number }[];
 };
 
+type TuneProfile = 'Stage 1' | 'Stage 2' | 'Stage 3';
+
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<TuneProfile>('Stage 1');
 
   const [original, setOriginal] = useState<File | null>(null);
   const [modified, setModified] = useState<File | null>(null);
@@ -63,7 +66,7 @@ export default function Home() {
       <section className="hero">
         <p className="eyebrow">VESTSJÆLLAND CHIPTUNING</p>
         <h1>Vest Tune File Tool</h1>
-        <p className="lead">Identificér ECU-filer og sammenlign original mod Stage 1 byte-for-byte.</p>
+        <p className="lead">ECU-identifikation, tuningprofiler og filanalyse i ét værktøj.</p>
       </section>
 
       <section className="card">
@@ -86,7 +89,32 @@ export default function Home() {
       <section className="card">
         <div className="sectionHead">
           <div>
-            <p className="step">2. ORIGINAL vs STAGE 1</p>
+            <p className="step">2. TUNINGPROFIL</p>
+            <h2>Vælg ønsket profil</h2>
+          </div>
+          <span className="badge">ECU-specifik</span>
+        </div>
+
+        <div className="profileGrid">
+          {(['Stage 1','Stage 2','Stage 3'] as TuneProfile[]).map(p => (
+            <button key={p} className={profile === p ? 'profile active' : 'profile'} onClick={() => setProfile(p)}>
+              <strong>{p}</strong>
+              <small>{p === 'Stage 1' ? 'Standard hardware' : p === 'Stage 2' ? 'Kræver relevante hardware-opgraderinger' : 'Custom setup / hardware-afhængig'}</small>
+            </button>
+          ))}
+        </div>
+
+        <div className="selectedProfile">
+          <b>Valgt profil:</b> {profile}
+        </div>
+        <p className="muted">Generering bliver kun aktiveret for ECU/softwareversioner, hvor vi har en verificeret kalibreringsdefinition og validerede grænser.</p>
+        <button disabled>Generér {profile}</button>
+      </section>
+
+      <section className="card">
+        <div className="sectionHead">
+          <div>
+            <p className="step">3. ORIGINAL vs MODIFICERET</p>
             <h2>Sammenlign tuningfiler</h2>
           </div>
           <span className="badge">Read-only analyse</span>
@@ -98,7 +126,7 @@ export default function Home() {
             <input type="file" accept=".bin,.ori,.mod" onChange={e => { setOriginal(e.target.files?.[0] || null); setComparison(null); }} />
           </label>
           <label>
-            <span>Stage 1 / modificeret fil</span>
+            <span>Modificeret fil</span>
             <input type="file" accept=".bin,.ori,.mod" onChange={e => { setModified(e.target.files?.[0] || null); setComparison(null); }} />
           </label>
         </div>
@@ -130,9 +158,13 @@ export default function Home() {
       </section>
 
       <section className="card">
-        <h2>3. Stage 1 workflow</h2>
-        <p>Næste trin bliver verificerede map-definitioner. Værktøjet ændrer ikke ukendte kalibreringsområder automatisk.</p>
-        <button disabled>Generér Stage 1</button>
+        <p className="step">4. EMISSIONS / SERVICE</p>
+        <h2>EGR & AdBlue</h2>
+        <div className="serviceGrid">
+          <div className="serviceItem"><strong>EGR diagnostics</strong><span>Identifikation af relevante fejl-/kalibreringsområder og OEM-serviceflow.</span></div>
+          <div className="serviceItem"><strong>AdBlue diagnostics</strong><span>Analyse af SCR/AdBlue-relaterede områder og fejlkoder til lovlig fejlsøgning og reparation.</span></div>
+        </div>
+        <p className="muted">Værktøjet automatiserer ikke deaktivering af emissionssystemer på vejgående biler.</p>
       </section>
     </main>
   );
